@@ -33,5 +33,9 @@ public partial class Cuentum
 
     public virtual ICollection<Local> Locals { get; set; } = new List<Local>();
 
+    public virtual ICollection<Pago> Pagos { get; set; } = new List<Pago>();
+
+    public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
+
     public virtual TipoCuentum TipoCuenta { get; set; } = null!;
 }

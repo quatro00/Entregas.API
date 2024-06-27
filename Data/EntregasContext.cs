@@ -30,9 +30,19 @@ public partial class EntregasContext : DbContext
 
     public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
 
+    public virtual DbSet<ConceptoPago> ConceptoPagos { get; set; }
+
     public virtual DbSet<Cuentum> Cuenta { get; set; }
 
+    public virtual DbSet<EstatusPedido> EstatusPedidos { get; set; }
+
     public virtual DbSet<Local> Locals { get; set; }
+
+    public virtual DbSet<MetodoPago> MetodoPagos { get; set; }
+
+    public virtual DbSet<Pago> Pagos { get; set; }
+
+    public virtual DbSet<Pedido> Pedidos { get; set; }
 
     public virtual DbSet<TipoCuentum> TipoCuenta { get; set; }
 
@@ -110,6 +120,14 @@ public partial class EntregasContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
         });
 
+        modelBuilder.Entity<ConceptoPago>(entity =>
+        {
+            entity.ToTable("ConceptoPago");
+
+            entity.Property(e => e.ConceptoPagoId).ValueGeneratedNever();
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
+        });
+
         modelBuilder.Entity<Cuentum>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
@@ -126,6 +144,14 @@ public partial class EntregasContext : DbContext
                 .HasForeignKey(d => d.TipoCuentaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Cuenta_TipoCuenta");
+        });
+
+        modelBuilder.Entity<EstatusPedido>(entity =>
+        {
+            entity.ToTable("EstatusPedido");
+
+            entity.Property(e => e.EstatusPedidoId).ValueGeneratedNever();
+            entity.Property(e => e.Descripcion).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Local>(entity =>
@@ -146,6 +172,77 @@ public partial class EntregasContext : DbContext
                 .HasForeignKey(d => d.CuentaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Local_Cuenta");
+        });
+
+        modelBuilder.Entity<MetodoPago>(entity =>
+        {
+            entity.ToTable("MetodoPago");
+
+            entity.Property(e => e.MetodoPagoId).ValueGeneratedNever();
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<Pago>(entity =>
+        {
+            entity.ToTable("Pago");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Comprobante).HasMaxLength(500);
+            entity.Property(e => e.Fecha).HasColumnType("datetime");
+            entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+            entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+            entity.Property(e => e.Importe).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Observaciones).HasMaxLength(500);
+            entity.Property(e => e.Referencia).HasMaxLength(500);
+
+            entity.HasOne(d => d.ConceptoPago).WithMany(p => p.Pagos)
+                .HasForeignKey(d => d.ConceptoPagoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Pago_ConceptoPago");
+
+            entity.HasOne(d => d.Cuenta).WithMany(p => p.Pagos)
+                .HasForeignKey(d => d.CuentaId)
+                .HasConstraintName("FK_Pago_Cuenta");
+
+            entity.HasOne(d => d.MetodoPag).WithMany(p => p.Pagos)
+                .HasForeignKey(d => d.MetodoPagId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Pago_MetodoPago");
+        });
+
+        modelBuilder.Entity<Pedido>(entity =>
+        {
+            entity.ToTable("Pedido");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Comision).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Destino).HasMaxLength(500);
+            entity.Property(e => e.DestinoLat).HasMaxLength(50);
+            entity.Property(e => e.DestinoLon).HasMaxLength(50);
+            entity.Property(e => e.Distancia).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.FechaAsignado).HasColumnType("datetime");
+            entity.Property(e => e.FechaCancelacion).HasColumnType("datetime");
+            entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+            entity.Property(e => e.FechaEntrega).HasColumnType("datetime");
+            entity.Property(e => e.FechaInicio).HasColumnType("datetime");
+            entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+            entity.Property(e => e.Folio).ValueGeneratedOnAdd();
+            entity.Property(e => e.Observaciones).HasMaxLength(500);
+            entity.Property(e => e.Precio).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.EstatusPedido).WithMany(p => p.Pedidos)
+                .HasForeignKey(d => d.EstatusPedidoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Pedido_EstatusPedido");
+
+            entity.HasOne(d => d.Local).WithMany(p => p.Pedidos)
+                .HasForeignKey(d => d.LocalId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Pedido_Local");
+
+            entity.HasOne(d => d.Repartidor).WithMany(p => p.Pedidos)
+                .HasForeignKey(d => d.RepartidorId)
+                .HasConstraintName("FK_Pedido_Cuenta");
         });
 
         modelBuilder.Entity<TipoCuentum>(entity =>

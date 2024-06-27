@@ -32,4 +32,6 @@ public partial class Local
     public Guid? UsuarioModificacion { get; set; }
 
     public virtual Cuentum Cuenta { get; set; } = null!;
+
+    public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
 }
